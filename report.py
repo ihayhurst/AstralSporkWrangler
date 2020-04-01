@@ -9,19 +9,24 @@ COVID_REC      = "time_series_covid19_recovered_global.csv"
 df_conf = pd.read_csv(f'{COVID_GIT_BASE}{COVID_CONF}')
 df_death = pd.read_csv(f'{COVID_GIT_BASE}{COVID_DEATH}')
 df_rec = pd.read_csv(f'{COVID_GIT_BASE}{COVID_REC}')
-discard_cols = ['Lat', 'Long']
+
 data_sources = [df_conf, df_death, df_rec]
-[i.drop([x for x in discard_cols], axis=1, inplace=True) for i in data_sources]
+discard_cols = ['Lat', 'Long']
 countries = ['United Kingdom', 'Italy', 'France', 'Germany', 'US', 'Switzerland', 'China', 'Iran', 'Korea, South', 'Turkey']
-#[i[i.groupby(['Country/Region']).sum()] for i in data_sources]
 
-#[i[i['Country/Region'].isin(countries)] for i in data_sources]
-df_conf = df_conf.groupby(['Country/Region']).agg('sum')
-df_death = df_death.groupby(['Country/Region']).agg('sum')
-df_rec = df_rec.groupby(['Country/Region']).agg('sum')
+[i.drop([x for x in discard_cols], axis=1, inplace=True) for i in data_sources]
+[i.rename(columns={'Country/Region' : 'Country'}, inplace=True) for i in data_sources]
 
-df_conf[df_conf['Country/Region'].isin(countries)]
-print(df_conf)
-print(df_death.head(10))
-print(df_rec.head(10))
-#print(df_conf.dtypes)
+df_conf=df_conf[df_conf['Country'].isin(countries)]
+df_death=df_death[df_death['Country'].isin(countries)]
+df_rec=df_rec[df_rec['Country'].isin(countries)]
+
+
+df_conf = df_conf.groupby(['Country']).agg('sum')
+df_death = df_death.groupby(['Country']).agg('sum')
+df_rec = df_rec.groupby(['Country']).agg('sum')
+
+with pd.option_context('display.max_rows', None, 'display.max_columns', None):
+    print(df_conf)
+    print(df_death)
+    print(df_rec)
