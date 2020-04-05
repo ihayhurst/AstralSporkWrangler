@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
+#Ian M. Hayhurst 2020
+#John Hopkins datasets: Script to generate animated bubbleplot of CoVID19 progression
+
 import pandas as pd
 from datetime import datetime, timedelta
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-import matplotlib.cm as cm
 from matplotlib import animation as animation
 import numpy as np
 mpl.use('agg')
@@ -41,38 +43,28 @@ df_rec   = df_rec.transpose().rename_axis('Date', axis=1)
 [i.reset_index(inplace=True) for i in data_sources]
 #df_conf.reset_index(inplace=True)
 
-#df_covid = reduce(lambda left,right: pd.merge(left,right), data_sources)
-'''Join the frames here '''
 
-#df_covid = df_conf.merge(df_death, on='Date',  how='left')
-#df_covid = df_covid.merge(df_rec, on='Date', how='left')
-#df_covid =df_conf.set_index('Date').join(df_death.set_index('Date'))
 '''Show the tables to see what we have'''
 with pd.option_context('display.max_rows', None, 'display.max_columns', None):
     
     print(df_conf)
-    #print(df_death)
-    #print(df_rec)
+    print(df_death)
+    print(df_rec)
 
 '''bubble plot and animate'''
 
 time_count = len(df_conf)
-max_radius = 25
-#colors =np.arange(1, len(countries)+1, 5)
 colors = ["red", "orange", "yellow", "green", "blue", "purple", "magenta", "black", "cyan", "teal"]
+#China(Red)  France(Orange),  Germany(Yellow),   Iran(Green),  Italy(Blue),  Korea, South(purple)  Switzerland(Magenta), Turkey(black), US(Cyan), United Kingdom (Teal)
 x = np.arange(0, len(countries))
 x = [0] * len(countries)
 x = np.array(x)
 y = df_conf.iloc[0, 0:]
-z = np.column_stack((x, y))
-s = df_death.iloc[0, 0:]
-print(f'x={x} y={y}')
+s = df_death.iloc[0, 0:]/3
+print(f'x={x} y={y}') #Debug to show plotting data
 fig, ax = plt.subplots(figsize=(12, 8))
-plt.legend(df_conf.iloc[0, 0:])
-pic = ax.scatter(x, y, s, c=colors, alpha=0.4)
-#pic.set_offsets([[np.nan]*len(colors)]*2)
-#pic.set_offsets([z])
-#ax.axis([)
+pic = ax.scatter(x, y, s, c=colors, alpha=0.3)
+ax.axis([0,10,0,1000])
 
 def init():
     #pic.set_offsets([[np.nan]*len(colors)]*2)
@@ -81,15 +73,16 @@ def init():
 
 def updateData(i):
     y = df_conf.iloc[i, 0:]
-    s = df_death.iloc[i, 0:]
+    s = df_death.iloc[i, 0:]/3
     x = [i] * len(countries)
     x = np.array(x)
+    
     print(f'x={x} y={y}')
-    pic = ax.scatter(x, y, s, c=colors, alpha =0.2)
+    pic = ax.scatter(x, y, s, c=colors, alpha =0.3, edgecolors="grey")
     pic.set_offsets(np.c_[x, y])
+    ax.autoscale()
     return pic,
 
-#plt.scatter(x, y, s=z*2000, c=x, cmap="Blues", alpha=0.4, edgecolors="grey", linewidth=2)
 ani = animation.FuncAnimation(fig, updateData, frames=time_count, interval = 100, blit=True, init_func=init) 
 Writer = animation.FFMpegWriter
 writer = Writer(fps = 5, bitrate = 8000)
