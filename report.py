@@ -70,13 +70,16 @@ print(f'x={x} y={y}') #Debug to show plotting data
 fig, ax = plt.subplots(figsize=(12, 8))
 pic = ax.scatter(x, y, s, c=colors, alpha=0.3)
 #ax.axis([0,10,0,1000])
-
+ann_list = []
 def init():
     #pic.set_offsets([[np.nan]*len(colors)]*2)
     pic.set_offsets([])
     return pic,
 
 def updateData(i):
+    for j, a in enumerate(ann_list):
+        a.remove()
+    ann_list[:] = []
     pop = df_conf.columns.values
     pop = ([countries_pop[f'{i}']for i in pop])
     y = df_conf.iloc[i, 0:]
@@ -89,8 +92,8 @@ def updateData(i):
     pic = ax.scatter(x, y, s, c=colors, alpha =0.3, edgecolors="grey")
     pic.set_offsets(np.c_[x, y])
     for xx,yy,txt in np.broadcast(x,y,df_conf.columns.values):
-        ax.annotate(txt, (xx,yy))
-    #plt.annotate('wibble', xy=(x,y))
+        ann = plt.annotate(txt,xy=(xx,yy), xytext=(5, 2), textcoords="offset points", ha="right", fontsize=10)
+        ann_list.append(ann)
     ax.autoscale()
     return pic,
 
