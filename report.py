@@ -21,7 +21,9 @@ df_rec = pd.read_csv(f'{COVID_GIT_BASE}{COVID_REC}')
 
 data_sources = [df_conf, df_death, df_rec]
 discard_cols = ['Province/State', 'Lat', 'Long']
-countries = ['United Kingdom', 'Italy', 'France', 'Germany', 'US', 'Switzerland', 'China', 'Iran', 'Korea, South', 'Turkey']
+countries = ['United Kingdom', 'Italy', 'France', 'Germany', 'US', 'Switzerland', 'China', 'Iran', 'Korea, South', 'Spain']
+countries_pop = {'United Kingdom':67886011, 'Italy':60461826, 'France':65273511
+, 'Germany':83783942, 'US':331002651, 'Switzerland':8654622, 'China':1439323776, 'Iran':83992949, 'Korea, South':51269185, 'Spain':46754778}
 
 [i.drop([x for x in discard_cols], axis=1, inplace=True) for i in data_sources]
 [i.rename(columns={'Country/Region' : 'Country'}, inplace=True) for i in data_sources]
@@ -55,16 +57,19 @@ with pd.option_context('display.max_rows', None, 'display.max_columns', None):
 
 time_count = len(df_conf)
 colors = ["red", "orange", "yellow", "green", "blue", "purple", "magenta", "black", "cyan", "teal"]
-#China(Red)  France(Orange),  Germany(Yellow),   Iran(Green),  Italy(Blue),  Korea, South(purple)  Switzerland(Magenta), Turkey(black), US(Cyan), United Kingdom (Teal)
+#China(Red)  France(Orange),  Germany(Yellow),   Iran(Green),  Italy(Blue),  Korea, South(purple)  Spain(Magenta), Switzerland(black), US(Cyan), United Kingdom (Teal)
 x = np.arange(0, len(countries))
 x = [0] * len(countries)
 x = np.array(x)
+pop = df_conf.columns.values
+pop = ([countries_pop[f'{i}']for i in pop])
 y = df_conf.iloc[0, 0:]
+y = np.divide(y,pop)
 s = df_death.iloc[0, 0:]/3
 print(f'x={x} y={y}') #Debug to show plotting data
 fig, ax = plt.subplots(figsize=(12, 8))
 pic = ax.scatter(x, y, s, c=colors, alpha=0.3)
-ax.axis([0,10,0,1000])
+#ax.axis([0,10,0,1000])
 
 def init():
     #pic.set_offsets([[np.nan]*len(colors)]*2)
@@ -72,14 +77,20 @@ def init():
     return pic,
 
 def updateData(i):
+    pop = df_conf.columns.values
+    pop = ([countries_pop[f'{i}']for i in pop])
     y = df_conf.iloc[i, 0:]
+    y = np.divide(y,pop)
     s = df_death.iloc[i, 0:]/3
     x = [i] * len(countries)
     x = np.array(x)
-    
+    y = np.array(y)
     print(f'x={x} y={y}')
     pic = ax.scatter(x, y, s, c=colors, alpha =0.3, edgecolors="grey")
     pic.set_offsets(np.c_[x, y])
+    for xx,yy,txt in np.broadcast(x,y,df_conf.columns.values):
+        ax.annotate(txt, (xx,yy))
+    #plt.annotate('wibble', xy=(x,y))
     ax.autoscale()
     return pic,
 
