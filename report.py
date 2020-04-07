@@ -92,7 +92,7 @@ def updateData(i):
     pic = ax.scatter(x, y, s, c=colors, alpha =0.3, edgecolors="grey")
     pic.set_offsets(np.c_[x, y])
     for xx,yy,txt in np.broadcast(x,y,df_conf.columns.values):
-        ann = plt.annotate(txt,xy=(xx,yy), xytext=(5, 2), textcoords="offset points", ha="right", fontsize=10)
+        ann = plt.annotate(txt,xy=(xx,yy), xytext=(5, 2), textcoords="offset points", ha="right", fontsize=14)
         ann_list.append(ann)
     ax.autoscale()
     return pic,
