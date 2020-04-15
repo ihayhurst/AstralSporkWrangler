@@ -4,6 +4,7 @@
 
 import pandas as pd
 from datetime import datetime, timedelta
+import functools
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib import animation as animation
@@ -76,6 +77,7 @@ def init():
     pic.set_offsets([])
     return pic,
 
+@functools.lru_cache(maxsize=128, typed=False)
 def updateData(i):
     for j, a in enumerate(ann_list):
         a.remove()
