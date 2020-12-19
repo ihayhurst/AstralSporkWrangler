@@ -16,7 +16,7 @@ COVID_CONF     = "time_series_covid19_confirmed_global.csv"
 
 df_conf = pd.read_csv(f'{COVID_GIT_BASE}{COVID_CONF}')
 
-data_sources = [df_conf,]
+data_sources = [df_conf, ]
 discard_cols = ['Province/State', 'Lat', 'Long']
 '''
 countries = ['United Kingdom', 'Italy', 'France', 'Germany', 'US',
@@ -90,4 +90,4 @@ writer = Writer(fps=6, bitrate=8000)
 plt.draw()
 # plt.show()
 # uncomment next line to write video
-ani.save('covid.mp4', writer)
+ani.save('covid-log.mp4', writer)

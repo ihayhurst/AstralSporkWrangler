@@ -14,13 +14,13 @@ mpl.use('agg')
 COVID_GIT_BASE = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/"
 COVID_CONF     = "time_series_covid19_confirmed_global.csv"
 COVID_DEATH    = "time_series_covid19_deaths_global.csv"
-COVID_REC      = "time_series_covid19_recovered_global.csv"
+#COVID_REC      = "time_series_covid19_recovered_global.csv"
 
 df_conf = pd.read_csv(f'{COVID_GIT_BASE}{COVID_CONF}')
 df_death = pd.read_csv(f'{COVID_GIT_BASE}{COVID_DEATH}')
-df_rec = pd.read_csv(f'{COVID_GIT_BASE}{COVID_REC}')
+#df_rec = pd.read_csv(f'{COVID_GIT_BASE}{COVID_REC}')
 
-data_sources = [df_conf, df_death, df_rec]
+data_sources = [df_conf, df_death]
 discard_cols = ['Province/State', 'Lat', 'Long']
 countries = ['United Kingdom', 'Italy', 'France', 'Germany', 'US',
              'Switzerland', 'China', 'Iran', 'Korea, South', 'Spain']
@@ -35,15 +35,15 @@ countries_pop = {'United Kingdom': 67886011, 'Italy': 60461826,
 
 df_conf = df_conf[df_conf['Country'].isin(countries)]
 df_death = df_death[df_death['Country'].isin(countries)]
-df_rec = df_rec[df_rec['Country'].isin(countries)]
+#df_rec = df_rec[df_rec['Country'].isin(countries)]
 
 df_conf = df_conf.groupby(['Country']).agg('sum')
 df_death = df_death.groupby(['Country']).agg('sum')
-df_rec = df_rec.groupby(['Country']).agg('sum')
+#df_rec = df_rec.groupby(['Country']).agg('sum')
 
 df_conf = df_conf.transpose().rename_axis('Date', axis=1)
 df_death = df_death.transpose().rename_axis('Date', axis=1)
-df_rec = df_rec.transpose().rename_axis('Date', axis=1)
+#df_rec = df_rec.transpose().rename_axis('Date', axis=1)
 
 # [pd.to_datetime(i.index) for i in data_sources]
 [i.reset_index(inplace=True) for i in data_sources]
@@ -55,7 +55,7 @@ with pd.option_context('display.max_rows', None, 'display.max_columns', None):
 
     print(df_conf)
     print(df_death)
-    print(df_rec)
+    #print(df_rec)
 
 '''bubble plot and animate'''
 
@@ -70,10 +70,11 @@ pop = df_conf.columns.values
 pop = ([countries_pop[f'{i}']for i in pop])
 y = df_conf.iloc[0, 0:]
 y = np.divide(y, pop)
-s = df_death.iloc[0, 0:]/3
+s = df_death.iloc[0, 0:]
+s = np.divide(s,pop)*100000
 print(f'x={x} y={y}')  # Debug to show plotting data
 fig, ax = plt.subplots(figsize=(12, 8))
-pic = ax.scatter(x, y, s, c=colors, alpha=0.3)
+pic = ax.scatter(x, y, s, c=colors, alpha=1)
 ann_list = []
 
 
@@ -92,12 +93,13 @@ def updateData(i):
     pop = ([countries_pop[f'{i}']for i in pop])
     y = df_conf.iloc[i, 0:]
     y = np.divide(y, pop)
-    s = df_death.iloc[i, 0:]/3
+    s = df_death.iloc[i, 0:]
+    s = np.divide(s, pop)*100000
     x = [i] * len(countries)
     x = np.array(x)
     y = np.array(y)
     print(f'x={x} y={y}')
-    pic = ax.scatter(x, y, s, c=colors, alpha=0.3, edgecolors="grey")
+    pic = ax.scatter(x, y, s, c=colors, alpha=1)
     pic.set_offsets(np.c_[x, y])
     for xx, yy, txt in np.broadcast(x, y, df_conf.columns.values):
         ann = plt.annotate(txt, xy=(xx, yy), xytext=(5, 2), textcoords="offset points", ha="right", fontsize=14)
